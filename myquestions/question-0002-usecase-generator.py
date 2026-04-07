@@ -1,52 +1,22 @@
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import GradientBoostingRegressor
 
-def casos_de_uso_aleatorios_reto2():
-    np.random.seed(np.random.randint(0, 9999))
-    n = np.random.randint(300, 600)
-    peso = round(np.random.uniform(1.5, 5.0), 1)
-
-    df = pd.DataFrame({
-        "velocidad_husillo":   np.random.uniform(500, 3000, n),
-        "profundidad_corte":   np.random.uniform(0.1, 5.0, n),
-        "avance_mm_min":       np.random.uniform(50, 500, n),
-        "temperatura_herr":    np.random.normal(45, 8, n),
-        "vibracion_rms":       np.abs(np.random.normal(0.3, 0.1, n)),
-        "tiempo_ciclo_seg":    (
-            120
-            + np.random.uniform(0, 80, n)
-            + np.random.normal(0, 10, n)
-        )
-    })
-
-    from sklearn.model_selection import train_test_split
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.ensemble import GradientBoostingRegressor
-
-    X = df.drop(columns=["tiempo_ciclo_seg"]).values
-    y = df["tiempo_ciclo_seg"].values
-    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42)
+def predecir_ciclo_asimetrico(df, target_col, peso_subestimacion):
+    X = df.drop(columns=[target_col]).values
+    y = df[target_col].values
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     sc = StandardScaler()
-    X_tr_s = sc.fit_transform(X_tr)
-    X_te_s = sc.transform(X_te)
-    model = GradientBoostingRegressor(random_state=42)
-    model.fit(X_tr_s, y_tr)
-    y_pred = model.predict(X_te_s)
+    X_train_s, X_test_s = sc.fit_transform(X_train), sc.transform(X_test)
+    model = GradientBoostingRegressor(random_state=42).fit(X_train_s, y_train)
+    y_pred = model.predict(X_test_s)
+    sub = y_pred < y_test
+    err = np.where(sub, peso_subestimacion * (y_test - y_pred)**2, (y_pred - y_test)**2)
+    return {"modelo": model, "wmse": round(float(err.mean()), 4), "n_subestimaciones": int(sub.sum())}
 
-    subestim = y_pred < y_te
-    errors = np.where(subestim,
-                      peso * (y_te - y_pred) ** 2,
-                      (y_pred - y_te) ** 2)
-    wmse = round(float(errors.mean()), 4)
-
-    return {
-        "input": {
-            "df": df,
-            "target_col": "tiempo_ciclo_seg",
-            "peso_subestimacion": peso,
-        },
-        "output": {
-            "wmse": wmse,
-            "n_subestimaciones": int(subestim.sum()),
-        }
-    }
+def casos_de_uso_aleatorios():
+    n, peso = 400, 3.5
+    df = pd.DataFrame(np.random.rand(n, 5), columns=["v1", "v2", "v3", "v4", "target"])
+    return {"input": {"df": df, "target_col": "target", "peso_subestimacion": peso}, "output": ["wmse"]}
