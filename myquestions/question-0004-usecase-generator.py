@@ -6,9 +6,7 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import AgglomerativeClustering
 
 
-def casos_de_uso_aleatorios_reto4():
-    np.random.seed(np.random.randint(0, 9999))
-
+def generar_caso_de_uso_segmentar_zonas_sismicas():
     n          = np.random.randint(300, 700)
     n_clusters = int(np.random.randint(3, 6))
     n_comp     = int(np.random.randint(2, 5))
