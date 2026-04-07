@@ -7,28 +7,33 @@ from sklearn.ensemble import GradientBoostingRegressor
 
 def generar_caso_de_uso_predecir_ciclo_asimetrico():
     """
-    Genera un caso de uso aleatorio para predecir_ciclo_asimetrico(df, target_col, peso_subestimacion).
-    Devuelve:
-        - argumentos_entrada: dict
-        - objeto_esperado: dict
+    Genera un caso de uso aleatorio para:
+    predecir_ciclo_asimetrico(df, target_col, peso_subestimacion)
+
+    Retorna:
+        argumentos_entrada (dict)
+        objeto_esperado (dict)
     """
     rng = np.random.default_rng()
 
-    n = int(rng.integers(300, 500))
-    peso = round(float(rng.uniform(1.5, 5.0)), 1)
+    n = int(rng.integers(300, 501))
+    peso_subestimacion = round(float(rng.uniform(1.5, 5.0)), 2)
 
-    # Datos sintéticos con relación real entre variables y target
+    # Variables explicativas sintéticas
     v1 = rng.uniform(0, 1, n)
-    v2 = rng.uniform(0, 1, n)
+    v2 = rng.uniform(10, 100, n)
     v3 = rng.normal(0, 1, n)
-    ruido = rng.normal(0, 3, n)
+    v4 = rng.uniform(-5, 5, n)
 
-    tiempo_ciclo = 120 + 25 * v1 - 18 * v2 + 7 * v3 + ruido
+    # Target continuo con relación no trivial
+    ruido = rng.normal(0, 4, n)
+    tiempo_ciclo = 50 + 18 * v1 + 0.35 * v2 - 6 * v3 + 2.5 * v4 + ruido
 
     df = pd.DataFrame({
-        "v1": v1,
-        "v2": v2,
-        "v3": v3,
+        "sensor_A": v1,
+        "sensor_B": v2,
+        "sensor_C": v3,
+        "sensor_D": v4,
         "tiempo_ciclo": tiempo_ciclo
     })
 
@@ -53,7 +58,7 @@ def generar_caso_de_uso_predecir_ciclo_asimetrico():
     subestimaciones = y_pred < y_te
     errores = np.where(
         subestimaciones,
-        peso * (y_te - y_pred) ** 2,
+        peso_subestimacion * (y_te - y_pred) ** 2,
         (y_pred - y_te) ** 2
     )
 
@@ -66,7 +71,7 @@ def generar_caso_de_uso_predecir_ciclo_asimetrico():
     argumentos_entrada = {
         "df": df,
         "target_col": target_col,
-        "peso_subestimacion": peso
+        "peso_subestimacion": peso_subestimacion
     }
 
     return argumentos_entrada, objeto_esperado
