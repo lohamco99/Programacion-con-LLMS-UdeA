@@ -1,18 +1,41 @@
-Reto 3 — Clasificación: Detección de Adulteración en Aceite de Oliva con Calibración de Probabilidades
-El Problema: Un laboratorio agroalimentario analiza muestras de aceite de oliva mediante espectroscopía NIR. El objetivo es detectar adulteración (mezcla con aceites más baratos). El problema tiene clases desbalanceadas (~15% adulteradas) y se requiere que el modelo no solo clasifique, sino que entregue probabilidades bien calibradas, porque el costo de una falsa alarma es alto.
-Tu Misión: Escribe una función detectar_adulteracion_aceite(X, y, test_size, calibration_method) que:
+Reto 0003 — Clasificación: Detección de Adulteración en Aceite de Oliva
 
-1)Divida en train/test con stratify=y y random_state=42.
-2)Escale X con StandardScaler.
-3)Entrene un RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42).
-4)Calibre las probabilidades usando CalibratedClassifierCV con el método especificado en calibration_method ("sigmoid" o "isotonic").
-5)Calcule sobre el test:
+El Problema:
+Un laboratorio agroalimentario analiza muestras de aceite de oliva mediante
+espectroscopía NIR. El objetivo es detectar adulteración (mezcla con aceites más
+baratos). El problema tiene clases desbalanceadas (~15% adulteradas) y se requiere
+que el modelo entregue probabilidades bien calibradas, ya que el costo de una
+falsa alarma es alto para los productores.
 
-------------roc_auc: AUC-ROC
-------------brier_score: Brier Score (qué tan bien calibradas están las probabilidades)
-------------recall_positivo: recall de la clase 1
+Tu Misión:
+Escribe una función llamada detectar_adulteracion_aceite(X, y, test_size, calibration_method) que:
 
+1. Divida los datos en train y test con stratify=y y random_state=42.
+2. Escale X con StandardScaler (fit solo sobre train, transform en ambos).
+3. Entrene un RandomForestClassifier(n_estimators=100, class_weight='balanced',
+   random_state=42).
+4. Calibre las probabilidades con CalibratedClassifierCV usando:
+     - el método indicado en calibration_method ('sigmoid' o 'isotonic')
+     - cv=3
+5. Calcule sobre el test:
+     - roc_auc:         AUC-ROC usando probabilidades de la clase positiva.
+     - brier_score:     Brier Score (calibración de probabilidades).
+     - recall_positivo: Recall de la clase 1 con umbral 0.5.
+6. Devuelva un diccionario con las claves:
+     - "modelo_calibrado": objeto CalibratedClassifierCV entrenado.
+     - "roc_auc":          float redondeado a 4 decimales.
+     - "brier_score":      float redondeado a 4 decimales.
+     - "recall_positivo":  float redondeado a 4 decimales.
 
-Devuelva un diccionario con esas tres métricas y el modelo calibrado.
+Argumentos:
+- X (np.ndarray): Matriz de características (n_samples, n_features).
+- y (np.ndarray): Vector de etiquetas binarias (0 = puro, 1 = adulterado).
+- test_size (float): Fracción del dataset para test (entre 0.1 y 0.4).
+- calibration_method (str): Método de calibración, 'sigmoid' o 'isotonic'.
 
-Restricciones: Librerías: numpy, sklearn.
+Retorno:
+- Un diccionario con las claves:
+  "modelo_calibrado", "roc_auc", "brier_score", "recall_positivo".
+
+Restricciones:
+- Librerías permitidas: numpy, sklearn.
