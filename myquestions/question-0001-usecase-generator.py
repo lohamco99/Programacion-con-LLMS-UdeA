@@ -3,9 +3,7 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 
 
-def casos_de_uso_aleatorios_reto1():
-    np.random.seed(np.random.randint(0, 9999))
-
+def generar_caso_de_uso_normalizar_por_ventana():
     n         = np.random.randint(200, 400)
     freq_min  = int(np.random.choice([5, 10, 15]))
     ventana_h = int(np.random.choice([2, 4, 6]))
@@ -19,8 +17,7 @@ def casos_de_uso_aleatorios_reto1():
     }, index=idx)
 
     for col in ["temperatura", "ph", "oxigeno"]:
-        mask = np.random.rand(n) < 0.08
-        df.loc[mask, col] = np.nan
+        df.loc[np.random.rand(n) < 0.08, col] = np.nan
 
     # Output esperado
     feature_cols = ["temperatura", "ph", "oxigeno"]
@@ -28,13 +25,11 @@ def casos_de_uso_aleatorios_reto1():
     df_clean[feature_cols] = (
         df_clean[feature_cols]
         .interpolate(method="linear")
-        .bfill()
-        .ffill()
+        .bfill().ffill()
     )
 
     scaler  = StandardScaler()
-    X_parts = []
-    y_parts = []
+    X_parts, y_parts = [], []
     for _, group in df_clean.resample(f"{ventana_h}h"):
         if len(group) == 0:
             continue
