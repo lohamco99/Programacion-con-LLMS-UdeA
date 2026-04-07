@@ -1,35 +1,27 @@
 Reto 0004 — Clustering + Dimensionalidad: Segmentación de Zonas de Riesgo Sísmico
 
 El Problema:
-Una red de estaciones sismológicas registra múltiples variables por evento (magnitud,
-profundidad, distancia epicentral, frecuencia dominante, duración, pico de aceleración,
-entre otras). Se quiere segmentar los eventos en zonas de riesgo homogéneas aplicando
-primero reducción de dimensionalidad (PCA) y luego clustering jerárquico. Los datos
-contienen valores atípicos extremos y valores faltantes, por lo que se requiere un
-pipeline robusto de preprocesamiento.
+Una red de estaciones sismológicas registra múltiples variables por evento (magnitud, profundidad, distancia epicentral, frecuencia dominante, duración, pico de aceleración, entre otras). Se quiere segmentar los eventos en zonas de riesgo homogéneas aplicando primero reducción de dimensionalidad (PCA) y luego clustering jerárquico. Los datos contienen valores atípicos extremos y valores faltantes, por lo que se requiere un pipeline robusto de preprocesamiento.
 
 Tu Misión:
 Escribe una función llamada segmentar_zonas_sismicas(df, n_clusters, n_components_pca) que:
 
 1. Seleccione solo las columnas numéricas del DataFrame usando select_dtypes.
 2. Impute los valores faltantes con la mediana usando SimpleImputer(strategy='median').
-3. Escale los datos con RobustScaler (robusto frente a outliers sísmicos extremos).
-4. Aplique PCA con n_components_pca componentes sobre los datos escalados.
-   Si n_components_pca > número de columnas, usar min(n_components_pca, n_cols).
-5. Aplique AgglomerativeClustering(n_clusters=n_clusters, linkage='ward') sobre
-   los componentes PCA.
+3. Escale los datos con RobustScaler.
+4. Aplique PCA con n_components_pca componentes sobre los datos escalados. Si n_components_pca es mayor que el número de columnas numéricas, use min(n_components_pca, n_cols).
+5. Aplique AgglomerativeClustering(n_clusters=n_clusters, linkage='ward') sobre los componentes PCA.
 6. Con los datos imputados (antes de escalar), calcule por cluster:
-     - La mediana de cada variable numérica original.
-     - El tamaño del cluster en una columna llamada 'n_eventos'.
+   - la mediana de cada variable numérica original
+   - el tamaño del cluster en una columna llamada 'n_eventos'
 7. Devuelva una tupla (labels, resumen_clusters) donde:
-     - labels:           np.ndarray 1D con la etiqueta de cluster de cada muestra.
-     - resumen_clusters: pd.DataFrame con una fila por cluster, columnas = variables
-                         originales + 'n_eventos', índice reiniciado desde 0.
+   - labels es un np.ndarray 1D con la etiqueta de cluster de cada muestra, preservando el orden de las filas del subconjunto numérico de entrada
+   - resumen_clusters es un pd.DataFrame con una fila por cluster, ordenado por etiqueta de cluster ascendente, con índice reiniciado desde 0
 
 Argumentos:
-- df (pd.DataFrame): DataFrame con columnas numéricas y posibles NaN y outliers.
-- n_clusters (int): Número de clusters para el clustering jerárquico (>= 2).
-- n_components_pca (int): Número de componentes principales a extraer (>= 2).
+- df (pd.DataFrame): DataFrame con columnas numéricas y no numéricas, y con posibles NaN y outliers.
+- n_clusters (int): Número de clusters para el clustering jerárquico, mayor o igual a 2.
+- n_components_pca (int): Número de componentes principales a extraer, mayor o igual a 2.
 
 Retorno:
 - Una tupla (labels: np.ndarray, resumen_clusters: pd.DataFrame).
