@@ -5,9 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import GradientBoostingRegressor
 
 
-def casos_de_uso_aleatorios_reto2():
-    np.random.seed(np.random.randint(0, 9999))
-
+def generar_caso_de_uso_predecir_ciclo_asimetrico():
     n    = np.random.randint(300, 600)
     peso = round(float(np.random.uniform(1.5, 5.0)), 1)
 
