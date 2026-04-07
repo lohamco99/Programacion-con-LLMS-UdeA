@@ -1,17 +1,36 @@
- Reto 2 — Regresión: Predicción de Tiempo de Ciclo en Manufactura con Error Asimétrico
-El Problema: Una fábrica de autopartes mide el tiempo de ciclo de sus máquinas CNC (en segundos). El costo de subestimar el tiempo es 3× mayor que el de sobreestimarlo (paros de línea vs. buffers). Por eso, la métrica de evaluación no es el MSE estándar, sino un error cuadrático asimétrico ponderado.
-Tu Misión: Escribe una función predecir_ciclo_asimetrico(df, target_col, peso_subestimacion) que:
+Reto 0002 — Regresión: Predicción de Tiempo de Ciclo con Error Asimétrico
 
-1)Separe X e y.
-2)Divida en train/test (80/20, random_state=42).
-3)Escale X con StandardScaler (fit solo en train).
-4)Entrene un GradientBoostingRegressor(random_state=42).
-5)Calcule el error cuadrático asimétrico ponderado sobre el test:
+El Problema:
+Una fábrica de autopartes mide el tiempo de ciclo de sus máquinas CNC (en segundos).
+El costo de subestimar el tiempo es significativamente mayor que el de sobreestimarlo,
+ya que provoca paros inesperados en la línea de producción. Por eso, la métrica de
+evaluación no es el MSE estándar, sino un error cuadrático asimétrico ponderado que
+penaliza más las subestimaciones.
 
-----------Si y_pred < y_real (subestimación): error = peso_subestimacion * (y_real - y_pred)²
-----------Si y_pred >= y_real (sobreestimación): error = (y_pred - y_real)²
+Tu Misión:
+Escribe una función llamada predecir_ciclo_asimetrico(df, target_col, peso_subestimacion) que:
 
+1. Separe las características (X) de la variable objetivo (y) usando target_col.
+2. Divida los datos en train (80%) y test (20%) con random_state=42.
+3. Escale X con StandardScaler (fit solo sobre train, transform en ambos).
+4. Entrene un GradientBoostingRegressor(random_state=42) sobre train escalado.
+5. Calcule el error cuadrático asimétrico ponderado sobre el test:
+     - Si y_pred < y_real  (subestimación): error_i = peso_subestimacion * (y_real - y_pred)²
+     - Si y_pred >= y_real (sobreestimación): error_i = (y_pred - y_real)²
+   WMSE = mean(error_i)
+6. Devuelva un diccionario con:
+     - "modelo":            objeto GradientBoostingRegressor entrenado.
+     - "wmse":              float redondeado a 4 decimales.
+     - "n_subestimaciones": int con el número de predicciones que subestimaron.
 
-6)Devuelva un diccionario con "modelo", "wmse" (float, 4 decimales) y "n_subestimaciones" (int).
+Argumentos:
+- df (pd.DataFrame): DataFrame con columnas numéricas. Sin valores NaN.
+- target_col (str): Nombre de la columna objetivo continua.
+- peso_subestimacion (float): Factor de penalización para subestimaciones (> 1.0).
 
-Restricciones: Sin loops por filas (usar operaciones numpy vectorizadas). Librerías: pandas, numpy, sklearn.
+Retorno:
+- Un diccionario con las claves: "modelo", "wmse", "n_subestimaciones".
+
+Restricciones:
+- El cálculo del WMSE debe hacerse con operaciones numpy vectorizadas (sin loops).
+- Librerías permitidas: pandas, numpy, sklearn.
