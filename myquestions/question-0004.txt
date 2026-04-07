@@ -1,2 +1,13 @@
-Reto 4: Clustering + PCA - Segmentación de Zonas Sísmicas.
-Agrupar eventos sísmicos usando Clustering Jerárquico (Ward) tras reducir dimensiones con PCA y escalar datos con RobustScaler para manejar la presencia de terremotos extremos (outliers).
+Reto 4 — Clustering + Reducción de Dimensionalidad: Segmentación de Zonas de Riesgo Sísmico con UMAP-like Pipeline
+El Problema: Una red de estaciones sismológicas registra 12 variables por evento (magnitud, profundidad, distancia epicentral, frecuencia dominante, duración, etc.). Se quiere segmentar los eventos en zonas de riesgo homogéneas usando reducción de dimensionalidad seguida de clustering, y luego caracterizar cada segmento con estadísticas clave.
+Tu Misión: Escribe una función segmentar_zonas_sismicas(df, n_clusters, n_components_pca) que:
+
+1)Seleccione solo columnas numéricas del DataFrame.
+2)Impute nulos con la mediana por columna (SimpleImputer).
+3)Escale con RobustScaler (robusto a outliers sísmicos extremos).
+4)Aplique PCA con n_components_pca componentes.
+5)Aplique AgglomerativeClustering(n_clusters=n_clusters, linkage='ward') sobre los componentes PCA.
+6)Calcule, por cluster, la mediana de cada variable original (antes de escalar) y el tamaño del grupo.
+7)Devuelva una tupla: (labels: np.ndarray, resumen_clusters: pd.DataFrame) donde el DataFrame tiene una fila por cluster con medianas de variables originales y columna "n_eventos".
+
+Restricciones: Sin loops por filas. Librerías: pandas, numpy, sklearn.
