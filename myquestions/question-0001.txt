@@ -1,11 +1,36 @@
- Reto 1 — Preprocesamiento: Normalización Adaptativa por Ventana Temporal (Industria Farmacéutica)
-El Problema: En una planta farmacéutica, sensores de biorreactores reportan temperatura, pH y concentración de oxígeno disuelto cada 5 minutos. Los datos llegan con valores faltantes por desconexiones breves, y las escalas varían drásticamente entre variables. Pero aquí el reto es mayor: el escalado debe hacerse localmente por ventanas de tiempo, no globalmente, porque los parámetros del proceso cambian de fase en fase.
-Tu Misión: Escribe una función llamada normalizar_por_ventana(df, target_col, ventana_horas, freq_min) que:
+Reto 0001 — Preprocesamiento: Normalización Adaptativa por Ventana Temporal
 
-1)Convierta el índice del DataFrame a datetime.
-2)Rellene los valores faltantes en las columnas de características (todas excepto target_col) usando interpolación lineal.
-3)Divida el tiempo en ventanas no solapadas de ventana_horas horas (resampleando cada freq_min minutos).
-4)Dentro de cada ventana, aplique StandardScaler de sklearn de forma independiente (fit y transform por ventana), para que el escalado refleje las condiciones locales del proceso.
-5)Concatene las ventanas escaladas y devuelva una tupla: (X_procesado: np.ndarray, y: np.ndarray).
+El Problema:
+En una planta farmacéutica, sensores de biorreactores reportan temperatura, pH y
+concentración de oxígeno disuelto cada cierto número de minutos. Los datos llegan
+con valores faltantes por desconexiones breves, y las escalas varían drásticamente
+entre variables. El reto es que el escalado debe hacerse localmente por ventanas de
+tiempo (no globalmente), porque los parámetros del proceso cambian de fase en fase.
 
-Restricciones: Sin loops por filas. Librerías: pandas, numpy, sklearn.
+Tu Misión:
+Escribe una función llamada normalizar_por_ventana(df, target_col, ventana_horas, freq_min) que:
+
+1. Convierta el índice del DataFrame a datetime si no lo es ya.
+2. Rellene los valores faltantes en las columnas de características (todas excepto
+   target_col) usando interpolación lineal, seguida de bfill() y ffill() para
+   cubrir los extremos.
+3. Divida el tiempo en ventanas no solapadas de ventana_horas horas usando resample().
+4. Dentro de cada ventana, aplique StandardScaler de sklearn de forma independiente
+   (fit_transform por ventana), para que el escalado refleje las condiciones locales.
+5. Concatene las ventanas escaladas y devuelva una tupla (X_procesado, y).
+
+Argumentos:
+- df (pd.DataFrame): DataFrame con índice temporal y columnas numéricas.
+                     Puede contener valores NaN en las columnas de características.
+- target_col (str): Nombre de la columna objetivo (no se escala, solo se extrae).
+- ventana_horas (int): Tamaño de cada ventana temporal en horas.
+- freq_min (int): Frecuencia de muestreo en minutos.
+
+Retorno:
+- Una tupla (X_procesado, y) donde:
+    X_procesado: np.ndarray con las características escaladas por ventana.
+    y:           np.ndarray con los valores objetivo sin transformar.
+
+Restricciones:
+- Sin loops por filas; usar operaciones vectorizadas de pandas y numpy.
+- Librerías permitidas: pandas, numpy, sklearn.
