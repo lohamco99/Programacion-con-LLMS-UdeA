@@ -9,10 +9,12 @@ from sklearn.metrics import roc_auc_score, brier_score_loss, recall_score
 
 def generar_caso_de_uso_detectar_adulteracion_aceite():
     """
-    Genera un caso de uso aleatorio para detectar_adulteracion_aceite(X, y, test_size, calibration_method).
-    Devuelve:
-        - argumentos_entrada: dict
-        - objeto_esperado: dict
+    Genera un caso de uso aleatorio para:
+    detectar_adulteracion_aceite(X, y, test_size, calibration_method)
+
+    Retorna:
+        argumentos_entrada (dict)
+        objeto_esperado (dict)
     """
     rng = np.random.default_rng()
 
@@ -21,7 +23,7 @@ def generar_caso_de_uso_detectar_adulteracion_aceite():
     test_size = round(float(rng.uniform(0.1, 0.4)), 2)
     calibration_method = rng.choice(["sigmoid", "isotonic"]).item()
 
-    # Aproximadamente 15% de positivos, como pide el enunciado
+    # ~15% de clase positiva, como exige el enunciado
     X, y = make_classification(
         n_samples=n_samples,
         n_features=n_features,
@@ -35,7 +37,8 @@ def generar_caso_de_uso_detectar_adulteracion_aceite():
     )
 
     X_tr, X_te, y_tr, y_te = train_test_split(
-        X, y,
+        X,
+        y,
         test_size=test_size,
         stratify=y,
         random_state=42
@@ -65,7 +68,7 @@ def generar_caso_de_uso_detectar_adulteracion_aceite():
         "modelo_calibrado": modelo_calibrado,
         "roc_auc": round(float(roc_auc_score(y_te, probs)), 4),
         "brier_score": round(float(brier_score_loss(y_te, probs)), 4),
-        "recall_positivo": round(float(recall_score(y_te, y_pred)), 4),
+        "recall_positivo": round(float(recall_score(y_te, y_pred)), 4)
     }
 
     argumentos_entrada = {
